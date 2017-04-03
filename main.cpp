@@ -4,8 +4,9 @@
 
 using namespace std;
 
-const int SIZE = 9;
-const int THIRD = 3;
+constexpr int SIZE = 9;
+constexpr int THIRD = SIZE / 3;
+
 
 struct coord {
     int i = 0;
@@ -15,24 +16,39 @@ struct coord {
     }
 };
 
+
 class SudokuCell {
-    coord position;
-
-
 public:
-   SudokuCell() {}
+    coord position;
+    int value = 0;
 
-   void setPosition(coord position) {
-       this->position = position;
-   }
+    SudokuCell() {}
+
+    void setPosition(coord pos) {
+        this->position = pos;
+
+        // generate row neighbors
+        // generate col neighbors
+        // generate cell neighbors
+        // get unique set of neighbors
+    }
 };
+
 
 class SudokuBoard {
     vector<SudokuCell> cells = vector<SudokuCell>(SIZE*SIZE);
 
 public:
 
-    SudokuBoard() {}
+    SudokuBoard() {
+        for(int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                coord pos{i, j};
+                auto index = resolvePosition(pos); // YOOOO structs
+                cells[index].setPosition(pos);
+            }
+        }
+    }
 
     /**
      * take index and return 2d coord
@@ -43,36 +59,72 @@ public:
                 index % SIZE
         };
     }
+
+    /**
+     * Take coord and return index
+     */
+    int resolvePosition(const coord &position) {
+        return position.i * SIZE + position.j;
+    }
+
+    /**
+     *
+     */
+    SudokuCell at(int index) {
+        return this->cells[index];
+    }
+
+    /**
+     *
+     */
+    SudokuCell at(coord position) {
+        auto index = this->resolvePosition(position);
+        return this->at(index);
+    }
+
+    /**
+     * print
+     */
+    void printBoard() {
+        cout << endl << "----------------------------------" << endl;
+
+        for(int i = 0; i < SIZE; i++) {
+            cout << "| ";
+
+            for(int j = 0; j < SIZE; j++) {
+                auto index = resolvePosition({i, j}); // YOOOO structs
+                auto cell = cells[index];
+                auto position = cell.position;
+
+                //cout << cell.value << "  ";
+                cout << position.i << "," << position.j << "  ";
+
+                if (j % THIRD == THIRD - 1) {
+                    cout << "| ";
+                }
+            }
+            if (i % THIRD == THIRD - 1) {
+                cout << endl << "----------------------------------";
+            }
+            cout << endl;
+        }
+    }
 };
 
-
-
-void printBoard(const vector<vector<int>> &board) {
-    cout << endl << "----------------------------------" << endl;
-
-    for(int i = 0; i < SIZE; i++) {
-        cout << "| ";
-
-        for(int j = 0; j < SIZE; j++) {
-            cout << board[i][j] << "  ";
-            if (j % THIRD == THIRD - 1) {
-                cout << "| ";
-            }
-        }
-        if (i % THIRD == THIRD - 1) {
-            cout << endl << "----------------------------------";
-        }
-        cout << endl;
-    }
-}
 
 int main() {
     SudokuBoard board{};
     auto a = board.resolveIndex(80);
     auto b = board.resolveIndex(75);
+    auto aa = board.resolvePosition(a);
+    auto bb = board.resolvePosition(b);
 
     cout << a.i << ' ' << a.j << endl;
+    cout << aa << endl;
     cout << b.i << ' ' << b.j << endl;
+    cout << bb << endl;
+
+    board.printBoard();
 
     return 0;
 }
