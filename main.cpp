@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <set>
 #include <experimental/random>
 
 using namespace std;
@@ -11,14 +12,20 @@ constexpr int THIRD = SIZE / 3;
 struct coord {
     int i = 0;
     int j = 0;
-    inline bool operator ==(const coord &other) {
-        return i == other.i && j == other.j;
-    }
 };
+
+inline bool operator == (const coord &lhs, const coord &rhs) {
+    return lhs.i == rhs.i && lhs.j == rhs.j;
+}
+
+inline bool operator < (const coord &lhs, const coord &rhs) {
+    return lhs.i < rhs.i || (lhs.i == rhs.i && lhs.j < rhs.j);
+}
 
 
 class SudokuCell {
 public:
+    set<coord> neighbors{};
     coord position;
     int value = 0;
 
@@ -28,9 +35,26 @@ public:
         this->position = pos;
 
         // generate row neighbors
+        for (int j = 0; j < SIZE; ++j) {
+            neighbors.insert({pos.i, j});
+        }
+
         // generate col neighbors
+        for (int i = 0; i < SIZE; ++i) {
+            neighbors.insert({i, pos.j});
+        }
+
+        auto iFloor = (pos.i / THIRD) * THIRD;
+        auto jFloor = (pos.j / THIRD) * THIRD;
+
         // generate cell neighbors
-        // get unique set of neighbors
+        for (int i = iFloor; i < iFloor + THIRD; ++i) {
+            for (int j = jFloor; j < jFloor + THIRD; ++j) {
+                neighbors.insert({i, j});
+            }
+        }
+
+        neighbors.erase(pos);
     }
 };
 
@@ -70,14 +94,14 @@ public:
     /**
      *
      */
-    SudokuCell at(int index) {
-        return this->cells[index];
+    SudokuCell* at(int index) {
+        return &(this->cells.at(index));
     }
 
     /**
      *
      */
-    SudokuCell at(coord position) {
+    SudokuCell* at(coord position) {
         auto index = this->resolvePosition(position);
         return this->at(index);
     }
@@ -94,10 +118,9 @@ public:
             for(int j = 0; j < SIZE; j++) {
                 auto index = resolvePosition({i, j}); // YOOOO structs
                 auto cell = cells[index];
-                auto position = cell.position;
 
                 //cout << cell.value << "  ";
-                cout << position.i << "," << position.j << "  ";
+                cout << cell.value << "  ";
 
                 if (j % THIRD == THIRD - 1) {
                     cout << "| ";
@@ -114,15 +137,14 @@ public:
 
 int main() {
     SudokuBoard board{};
-    auto a = board.resolveIndex(80);
-    auto b = board.resolveIndex(75);
-    auto aa = board.resolvePosition(a);
-    auto bb = board.resolvePosition(b);
 
-    cout << a.i << ' ' << a.j << endl;
-    cout << aa << endl;
-    cout << b.i << ' ' << b.j << endl;
-    cout << bb << endl;
+    auto cell = board.at({5, 3});
+    cell->value = 1;
+
+    for(auto neighbor : cell->neighbors){
+        auto neighborCell = board.at(neighbor);
+        neighborCell->value = 7;
+    }
 
     board.printBoard();
 
