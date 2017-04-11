@@ -28,12 +28,15 @@ inline bool operator < (const coord &lhs, const coord &rhs) {
 
 class SudokuCell {
 public:
+    coord pos;
     set<coord> neighbors{};
     int value = 0;
 
     SudokuCell() {}
 
     void setPosition(coord pos) {
+        this->pos = pos;
+        
         // generate row neighbors
         for (auto j : ZERO_THRU_EIGHT) {
             neighbors.insert({pos.i, j});
@@ -95,9 +98,13 @@ public:
                     neighborValues.begin(), neighborValues.end(),
                     inserter(options, options.begin())
             );
-            cout << options.size() << endl;
+
+            for(auto o : neighborValues){
+              cout << o << " ";
+            }
+            cout << endl << cell.pos.i << ' '<< cell.pos.j << endl;
             cell.value = options.at(rand() % options.size());
-            cout << cell.value << endl;
+            this->printBoard();
         }
     }
 
@@ -163,16 +170,11 @@ public:
 
 
 int main() {
+    srand (time(NULL));
     SudokuBoard board{};
 
     auto cell = board.at({5, 3});
-    cell->value = 1;
-
-    for(auto neighbor : cell->neighbors){
-        auto neighborCell = board.at(neighbor);
-        neighborCell->value = 7;
-    }
-
+    
     board.fillCells();
     board.printBoard();
 
