@@ -1,13 +1,16 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <set>
 #include <experimental/random>
+#include <stdlib.h>
 
 using namespace std;
 
 constexpr int SIZE = 9;
 constexpr int THIRD = SIZE / 3;
-
+const vector<int> ZERO_THRU_EIGHT = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+const set<int> VALID_VALUES = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
 struct coord {
     int i = 0;
@@ -26,21 +29,18 @@ inline bool operator < (const coord &lhs, const coord &rhs) {
 class SudokuCell {
 public:
     set<coord> neighbors{};
-    coord position;
     int value = 0;
 
     SudokuCell() {}
 
     void setPosition(coord pos) {
-        this->position = pos;
-
         // generate row neighbors
-        for (int j = 0; j < SIZE; ++j) {
+        for (auto j : ZERO_THRU_EIGHT) {
             neighbors.insert({pos.i, j});
         }
 
         // generate col neighbors
-        for (int i = 0; i < SIZE; ++i) {
+        for (auto i : ZERO_THRU_EIGHT) {
             neighbors.insert({i, pos.j});
         }
 
@@ -71,6 +71,33 @@ public:
                 auto index = resolvePosition(pos); // YOOOO structs
                 cells[index].setPosition(pos);
             }
+        }
+    }
+
+    /*
+     * fill the board with valid solution
+     */
+    void fillCells() {
+        set<int> neighborValues = {};
+        vector<int> options;
+
+        for (auto &cell : cells){
+            neighborValues.clear();
+            options.clear();
+            for(auto &neighbor : cell.neighbors) {
+                auto value = this->at(neighbor)->value;
+                neighborValues.insert(value);
+            }
+
+            // get available options
+            set_difference(
+                    VALID_VALUES.begin(), VALID_VALUES.end(),
+                    neighborValues.begin(), neighborValues.end(),
+                    inserter(options, options.begin())
+            );
+            cout << options.size() << endl;
+            cell.value = options.at(rand() % options.size());
+            cout << cell.value << endl;
         }
     }
 
@@ -146,6 +173,7 @@ int main() {
         neighborCell->value = 7;
     }
 
+    board.fillCells();
     board.printBoard();
 
     return 0;
