@@ -2,16 +2,15 @@
 #include <vector>
 #include <algorithm>
 #include <set>
-#include <experimental/random>
 #include <stdlib.h>
 #include <deque>
 #include <memory>
+#include <sstream>
 
 using namespace std;
 
 constexpr int SIZE = 9;
 constexpr int THIRD = SIZE / 3;
-const vector<int> ZERO_THRU_EIGHT = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 const set<int> VALID_VALUES = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
 struct coord {
@@ -31,7 +30,7 @@ inline bool operator < (const coord &lhs, const coord &rhs) {
 class SudokuCell {
 public:
     coord pos;
-    set<coord> neighbors{};
+    set<coord> fillNeighors{}; // neighbors to look at when filling from top-left to bottom right
     int value = 0;
 
     SudokuCell() {}
@@ -39,27 +38,27 @@ public:
     void setPosition(coord pos) {
         this->pos = pos;
         
-        // generate row neighbors
-        for (auto j : ZERO_THRU_EIGHT) {
-            neighbors.insert({pos.i, j});
+        // generate row fillNeighors
+        for (int i = 0; i < pos.i; ++i) {
+            fillNeighors.insert({i, pos.j});
         }
 
-        // generate col neighbors
-        for (auto i : ZERO_THRU_EIGHT) {
-            neighbors.insert({i, pos.j});
+        // generate col fillNeighors
+        for (int j = 0; j < pos.j; ++j) {
+            fillNeighors.insert({pos.i, j});
         }
 
         auto iFloor = (pos.i / THIRD) * THIRD;
         auto jFloor = (pos.j / THIRD) * THIRD;
 
-        // generate cell neighbors
-        for (int i = iFloor; i < iFloor + THIRD; ++i) {
-            for (int j = jFloor; j < jFloor + THIRD; ++j) {
-                neighbors.insert({i, j});
+        // generate cell fillNeighors
+        for (int i = iFloor; i <= pos.i ; ++i) {
+            for (int j = jFloor; (i < pos.i && j < jFloor + THIRD) || j < pos.j ; ++j) {
+                fillNeighors.insert({i, j});
             }
         }
 
-        neighbors.erase(pos);
+        fillNeighors.erase(pos);
     }
 };
 
@@ -99,6 +98,7 @@ public:
         set<int> neighborValues = {};
 
         for(auto &neighbor : cell->neighbors) {
+        for(auto &neighbor : cell->fillNeighors) {
             auto value = this->at(neighbor)->value;
             neighborValues.insert(value);
         }
