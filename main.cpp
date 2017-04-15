@@ -57,8 +57,6 @@ public:
                 fillNeighors.insert({i, j});
             }
         }
-
-        fillNeighors.erase(pos);
     }
 };
 
@@ -97,7 +95,6 @@ public:
 
         set<int> neighborValues = {};
 
-        for(auto &neighbor : cell->neighbors) {
         for(auto &neighbor : cell->fillNeighors) {
             auto value = this->at(neighbor)->value;
             neighborValues.insert(value);
@@ -183,17 +180,40 @@ public:
             cout << endl;
         }
     }
+
+    /**
+     * serialize
+     */
+    string serialize() {
+        stringstream ostream;
+
+        for(auto cell: cells) {
+            ostream << cell->value;
+        }
+
+        return ostream.str();
+    }
 };
 
 
-int main() {
-    srand (time(NULL));
-    SudokuBoard board{};
+int main(int argc, char** argv) {
+    if (argc != 2) {
+        cerr << "Usage: " << argv[0] << " [number of boards to generate]" << endl;
+        return 1;
+    }
 
-    auto cell = board.at({5, 3});
-    
-    board.fillCells();
-    board.printBoard();
+    auto iterations = atol(argv[1]);
+
+    srand(time(NULL));
+
+    SudokuBoard board{};
+    stringstream output;
+
+    for(auto i = 0; i < iterations; ++i){
+        board.fillCells();
+        output << board.serialize() << endl;
+    }
+    cout << output.rdbuf();
 
     return 0;
 }
