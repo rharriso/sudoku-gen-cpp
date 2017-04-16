@@ -6,12 +6,14 @@
 #include <deque>
 #include <memory>
 #include <sstream>
+#include <cstring>
 
 using namespace std;
 
 constexpr int SIZE = 9;
 constexpr int THIRD = SIZE / 3;
 const set<int> VALID_VALUES = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+bool g_allNeighbors = false;
 
 struct coord {
     int i = 0;
@@ -37,7 +39,35 @@ public:
 
     void setPosition(coord pos) {
         this->pos = pos;
-        
+
+        // generate neighbors
+        (g_allNeighbors) ? generateAllNeighbors() :
+                           generateOptimalNeighbors();
+    }
+
+    void generateAllNeighbors () {
+        // generate row fillNeighors
+        for (int i = 0; i < SIZE; ++i) {
+            fillNeighors.insert({i, pos.j});
+        }
+
+        // generate col fillNeighors
+        for (int j = 0; j < SIZE; ++j) {
+            fillNeighors.insert({pos.i, j});
+        }
+
+        auto iFloor = (pos.i / THIRD) * THIRD;
+        auto jFloor = (pos.j / THIRD) * THIRD;
+
+        // generate cell fillNeighors
+        for (int i = iFloor; i < iFloor + THIRD ; ++i) {
+            for (int j = jFloor; j < jFloor + THIRD; ++j) {
+                fillNeighors.insert({i, j});
+            }
+        }
+    }
+
+    void generateOptimalNeighbors () {
         // generate row fillNeighors
         for (int i = 0; i < pos.i; ++i) {
             fillNeighors.insert({i, pos.j});
@@ -74,6 +104,12 @@ public:
                 cell->setPosition({i, j});
                 cells.push_back(cell);
             }
+        }
+    }
+
+    void reset () {
+        for(auto cell : cells) {
+            cell->value = 0;
         }
     }
 
@@ -195,11 +231,24 @@ public:
     }
 };
 
+void printUsageError(char *programName) {
+    cerr << "Usage: " << programName << " board_count [--all-neighbors]" << endl;
+}
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        cerr << "Usage: " << argv[0] << " [number of boards to generate]" << endl;
+    if (argc < 2 || argc > 3) {
+        printUsageError(argv[0]);
         return 1;
+    }
+
+    if (argc == 3) {
+        cout << argv[2] << endl;
+        if (strcmp(argv[2], "--all-neighbors") != 0) {
+            printUsageError(argv[0]);
+            return 1;
+        }
+
+        g_allNeighbors = true;
     }
 
     auto iterations = atol(argv[1]);
@@ -212,6 +261,9 @@ int main(int argc, char** argv) {
     for(auto i = 0; i < iterations; ++i){
         board.fillCells();
         output << board.serialize() << endl;
+        if (g_allNeighbors) {
+            board.reset();
+        }
     }
     cout << output.rdbuf();
 
