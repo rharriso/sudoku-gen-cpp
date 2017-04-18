@@ -203,8 +203,13 @@ public:
             for(int j = 0; j < SIZE; j++) {
                 auto index = resolvePosition({i, j}); // YOOOO structs
                 auto cell = cells[index];
+                auto value = cell->value;
 
-                cout << cell->value << "  ";
+                if ( value > 0 ) {
+                  cout << cell->value << "  ";
+                } else {
+                  cout << "   ";
+                }
 
                 if (j % THIRD == THIRD - 1) {
                     cout << "| ";
