@@ -46,6 +46,7 @@ public:
                            generateOptimalNeighbors();
     }
 
+private:
     void generateAllNeighbors () {
         // generate row fillNeighors
         for (int i = 0; i < SIZE; ++i) {
