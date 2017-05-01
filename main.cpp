@@ -33,7 +33,7 @@ inline bool operator < (const coord &lhs, const coord &rhs) {
 class SudokuCell {
 public:
     coord pos;
-    set<coord> fillNeighors{}; // neighbors to look at when filling from top-left to bottom right
+    set<coord> neighbors{}; // neighbors to look at when filling from top-left to bottom right
     int value = 0;
 
     SudokuCell() {}
@@ -48,45 +48,41 @@ public:
 
 private:
     void generateAllNeighbors () {
-        // generate row fillNeighors
-        for (int i = 0; i < SIZE; ++i) {
-            fillNeighors.insert({i, pos.j});
-        }
-
-        // generate col fillNeighors
-        for (int j = 0; j < SIZE; ++j) {
-            fillNeighors.insert({pos.i, j});
+        // generate row  & col neighbors
+        for (int n = 0; n < SIZE; ++n) {
+            neighbors.insert({n, pos.j});
+            neighbors.insert({pos.i, n});
         }
 
         auto iFloor = (pos.i / THIRD) * THIRD;
         auto jFloor = (pos.j / THIRD) * THIRD;
 
-        // generate cell fillNeighors
-        for (int i = iFloor; i < iFloor + THIRD ; ++i) {
-            for (int j = jFloor; j < jFloor + THIRD; ++j) {
-                fillNeighors.insert({i, j});
+        // generate cell neighbors
+        for (int n = iFloor; n < iFloor + THIRD ; ++n) {
+            for (int m = jFloor; m < jFloor + THIRD; ++m) {
+                neighbors.insert({n, m});
             }
         }
     }
 
     void generateOptimalNeighbors () {
-        // generate row fillNeighors
+        // generate row neighbors
         for (int i = 0; i < pos.i; ++i) {
-            fillNeighors.insert({i, pos.j});
+            neighbors.insert({i, pos.j});
         }
 
-        // generate col fillNeighors
+        // generate col neighbors
         for (int j = 0; j < pos.j; ++j) {
-            fillNeighors.insert({pos.i, j});
+            neighbors.insert({pos.i, j});
         }
 
         auto iFloor = (pos.i / THIRD) * THIRD;
         auto jFloor = (pos.j / THIRD) * THIRD;
 
-        // generate cell fillNeighors
+        // generate cell neighbors
         for (int i = iFloor; i <= pos.i ; ++i) {
             for (int j = jFloor; (i < pos.i && j < jFloor + THIRD) || j < pos.j ; ++j) {
-                fillNeighors.insert({i, j});
+                neighbors.insert({i, j});
             }
         }
     }
@@ -133,7 +129,7 @@ public:
 
         set<int> neighborValues = {};
 
-        for(auto &neighbor : cell->fillNeighors) {
+        for(auto &neighbor : cell->neighbors) {
             auto value = this->at(neighbor)->value;
             neighborValues.insert(value);
         }
@@ -207,10 +203,10 @@ public:
                 auto cell = cells[index];
                 auto value = cell->value;
 
-                if ( value > 0 ) {
-                  cout << cell->value << "  ";
+                if (cell->value > 0)  {
+                    cout << cell->value << "  ";
                 } else {
-                  cout << "   ";
+                    cout << "   ";
                 }
 
                 if (j % THIRD == THIRD - 1) {
