@@ -7,6 +7,7 @@
 #include <memory>
 #include <sstream>
 #include <cstring>
+#include <chrono>
 
 using namespace std;
 
@@ -241,7 +242,7 @@ void printUsageError(char *programName) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2 || argc > 3) {
+    /*if (argc < 2 || argc > 3) {
         printUsageError(argv[0]);
         return 1;
     }
@@ -254,9 +255,11 @@ int main(int argc, char** argv) {
         }
 
         g_allNeighbors = true;
-    }
+    }*/
 
-    auto iterations = atol(argv[1]);
+    //auto iterations = atol(argv[1]);
+    auto iterations = 10000;
+    auto start_time = chrono::system_clock::now();
 
     srand(time(NULL));
 
@@ -270,7 +273,13 @@ int main(int argc, char** argv) {
             board.reset();
         }
     }
-    cout << output.rdbuf();
+
+    auto now = chrono::system_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(now - start_time).count();
+    cout << "time ms: "  << duration << '\n';
+    cout << "Iterations "  << iterations << '\n';
+    cout << "Last board: " << board.serialize() << '\n';
+    cout << "boards per second " <<  (double) 1000 * iterations / duration << '\n';
 
     return 0;
 }
