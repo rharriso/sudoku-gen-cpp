@@ -255,7 +255,7 @@ int main(int argc, char** argv) {
     }*/
 
     //auto iterations = atol(argv[1]);
-    auto iterations = 10000;
+    auto iterations = 10;
     auto start_time = chrono::system_clock::now();
 
     srand(time(NULL));
@@ -272,11 +272,12 @@ int main(int argc, char** argv) {
     }
 
     auto now = chrono::system_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(now - start_time).count();
-    cout << "time ms: "  << duration << '\n';
+    auto duration = chrono::duration_cast<chrono::microseconds>(now - start_time).count();
+    auto boards_per_s = 10e6 * ((double)iterations) / duration;
+    cout << "time micros: "  << duration << '\n';
     cout << "Iterations "  << iterations << '\n';
     cout << "Last board: " << board.serialize() << '\n';
-    cout << "boards per second " <<  (double) 1000 * iterations / duration << '\n';
+    cout << "boards per second " <<  boards_per_s << '\n';
 
     return 0;
 }
