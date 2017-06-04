@@ -118,7 +118,7 @@ public:
         auto remaininCells = cellQueue{cells};
 
         if(!doFillCells(remaininCells)) {
-            cout << "Unable to fill board" << endl;
+            cout << "Unable to fill board" << '\n';
         }
     }
 
@@ -193,7 +193,7 @@ public:
      * print
      */
     void printBoard() {
-        cout << endl << "----------------------------------" << endl;
+        cout << '\n' << "----------------------------------" << '\n';
 
         for(int i = 0; i < SIZE; i++) {
             cout << "| ";
@@ -214,9 +214,9 @@ public:
                 }
             }
             if (i % THIRD == THIRD - 1) {
-                cout << endl << "----------------------------------";
+                cout << '\n' << "----------------------------------";
             }
-            cout << endl;
+            cout << '\n';
         }
     }
 
@@ -235,7 +235,7 @@ public:
 };
 
 void printUsageError(char *programName) {
-    cerr << "Usage: " << programName << " board_count [--all-neighbors]" << endl;
+    cerr << "Usage: " << programName << " board_count [--all-neighbors]" << '\n';
 }
 
 int main(int argc, char** argv) {
@@ -245,7 +245,7 @@ int main(int argc, char** argv) {
     }
 
     if (argc == 3) {
-        cout << argv[2] << endl;
+        cout << argv[2] << '\n';
         if (strcmp(argv[2], "--all-neighbors") != 0) {
             printUsageError(argv[0]);
             return 1;
@@ -255,7 +255,7 @@ int main(int argc, char** argv) {
     }*/
 
     //auto iterations = atol(argv[1]);
-    auto iterations = 10;
+    auto iterations = 10000;
     auto start_time = chrono::system_clock::now();
 
     srand(time(NULL));
@@ -265,7 +265,7 @@ int main(int argc, char** argv) {
 
     for(auto i = 0; i < iterations; ++i){
         board.fillCells();
-        output << board.serialize() << endl;
+        output << board.serialize() << '\n';
         if (g_allNeighbors) {
             board.reset();
         }
