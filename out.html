@@ -1,6 +1,10 @@
 <html>
-	<head>
-		<script type="text/javascript" src="a.out.js"></script>
-	</head>
-	<body>open console</body>
+	<body>running....</body>
+  <script type="text/javascript">
+    console.log = (text) => {
+          document.body.append(text + '\n');
+          document.body.append(document.createElement('br'));
+    }
+  </script>
+  <script type="text/javascript" src="a.out.js"></script>
 </html>
