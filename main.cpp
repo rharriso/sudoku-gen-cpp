@@ -112,17 +112,14 @@ public:
      * fill the board with valid solution
      */
     void fillCells() {
-        auto remaininCells = cellQueue{cells};
-
-        if(!doFillCells(remaininCells)) {
+        if(!doFillCells(0)) {
             cout << "Unable to fill board" << '\n';
         }
     }
 
-    bool doFillCells(cellQueue &remainingCells) {
+    bool doFillCells(int index) {
         // get first cell and tail
-        auto cell = remainingCells.front();
-        remainingCells.pop_front();
+        auto cell = cells.at(index);
 
         set<int> neighborValues = {};
 
@@ -143,14 +140,13 @@ public:
         for(auto option : options) {
             cell->value = option;
 
-            if (remainingCells.empty() || doFillCells(remainingCells)) {
+            if (index == cells.size() - 1 || doFillCells(index + 1)) {
                 return true;
             }
         }
 
         // out of options backtrack
         cell->value = 0;
-        remainingCells.push_front(cell);
         return false;
     }
 
