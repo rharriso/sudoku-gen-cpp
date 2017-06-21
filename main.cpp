@@ -136,7 +136,6 @@ public:
         );
         random_shuffle(options.begin(), options.end());
 
-
         for(auto option : options) {
             cell->value = option;
 
@@ -266,7 +265,7 @@ int main(int argc, char** argv) {
 
     auto now = chrono::system_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(now - start_time).count();
-    auto boards_per_s = 10e6 * ((double)iterations) / duration;
+    auto boards_per_s = 10e5 * ((double)iterations) / duration;
     cout << "time micros: "  << duration << '\n';
     cout << "Iterations "  << iterations << '\n';
     cout << "Last board: " << board.serialize() << '\n';
