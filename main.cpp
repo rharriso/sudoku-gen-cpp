@@ -12,6 +12,8 @@ constexpr int SIZE = 9;
 constexpr int THIRD = SIZE / 3;
 const set<int> VALID_VALUES = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 bool g_allNeighbors = false;
+std::random_device rd;
+std::mt19937 randomGen(rd());
 
 struct coord {
     int i = 0;
@@ -134,7 +136,7 @@ public:
                 neighborValues.begin(), neighborValues.end(),
                 inserter(options, options.begin())
         );
-        random_shuffle(options.begin(), options.end());
+        shuffle(options.begin(), options.end(), randomGen);
 
         for(auto option : options) {
             cell->value = option;
