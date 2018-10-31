@@ -3,11 +3,9 @@ sudoku gen cpp
 
 ## Building And Running
 ```sh
-mkdir build
-cd build
-cmake .. && make
-./sudoku_generator_cpp 2 --all-neighbors
+ make && ./sudoku-gen
 ```
+
 ## Usage
 
 ```

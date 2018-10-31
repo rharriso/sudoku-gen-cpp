@@ -1,8 +1,8 @@
 sudoku-gen: main.o
-	clang++ -std=c++1z main.o -o sudoku-gen
+	g++ -std=c++1z main.o -o sudoku-gen
 
 %.o: %.cpp
-	clang++ -std=c++1z -O3 -c $< -o $@
+	g++ -std=c++1z -O3 -c $< -o $@
 
 run-asm:
 	emcc -std=c++1z -O3 main.cpp
