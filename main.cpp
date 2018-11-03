@@ -54,10 +54,11 @@ private:
             neighbors.insert({pos.i, n});
         }
 
+        // find the block top left coordinate
         auto iFloor = (pos.i / THIRD) * THIRD;
         auto jFloor = (pos.j / THIRD) * THIRD;
 
-        // generate cell neighbors
+        // generate block neighbors
         for (int n = iFloor; n < iFloor + THIRD ; ++n) {
             for (int m = jFloor; m < jFloor + THIRD; ++m) {
                 neighbors.insert({n, m});
@@ -79,7 +80,7 @@ private:
         auto iFloor = (pos.i / THIRD) * THIRD;
         auto jFloor = (pos.j / THIRD) * THIRD;
 
-        // generate cell neighbors
+        // generate block neighbors
         for (int i = iFloor; i <= pos.i ; ++i) {
             for (int j = jFloor; (i < pos.i && j < jFloor + THIRD) || j < pos.j ; ++j) {
                 neighbors.insert({i, j});
