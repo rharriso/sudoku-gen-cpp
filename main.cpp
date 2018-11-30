@@ -235,10 +235,10 @@ void printUsageError(char *programName) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2 || argc > 3) {
+    /*if (argc < 2 || argc > 3) {
         printUsageError(argv[0]);
         return 1;
-    }
+    }*/
 
     if (argc == 3) {
         std::cout << argv[2] << '\n';
@@ -250,7 +250,8 @@ int main(int argc, char** argv) {
         g_allNeighbors = true;
     }
 
-    auto iterations = atol(argv[1]);
+    //auto iterations = atol(argv[1]);
+    auto iterations = 100; //atol(argv[1]);
     auto start_time = std::chrono::system_clock::now();
 
     srand(time(NULL));

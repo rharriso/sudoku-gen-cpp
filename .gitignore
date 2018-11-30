@@ -34,3 +34,6 @@ build
 
 a.out*
 /sudoku-gen
+/out.html
+/out.js
+/out.wasm
