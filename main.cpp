@@ -89,156 +89,142 @@ private:
     }
 };
 
+/**
+ * take index and return 2d coord
+ */
+coord resolveIndex(int index) {
+    return coord{
+        index / SIZE,
+        index % SIZE
+    };
+}
+
+/**
+ * Take coord and return index
+ */
+int resolvePosition(const coord &position) {
+    return position.i * SIZE + position.j;
+}
+
+
+
 using cellQueue = std::deque<std::shared_ptr<SudokuCell>>;
 
-class SudokuBoard {
-    cellQueue cells;
+extern "C" {
+    class SudokuBoard {
+        cellQueue cells;
 
-public:
+    public:
+        SudokuBoard();
+        void fillCells();
+        std::string serialize();
 
-    SudokuBoard() {
-        for(int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                auto cell = std::make_shared<SudokuCell>(SudokuCell());
-                cell->setPosition({i, j});
-                cells.push_back(cell);
-            }
+    private:
+        bool doFillCells(int index);
+        std::shared_ptr<SudokuCell> at(int index);
+        std::shared_ptr<SudokuCell> at(coord position);
+    };
+}
+
+
+SudokuBoard::SudokuBoard() {
+    for(int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            auto cell = std::make_shared<SudokuCell>(SudokuCell());
+            cell->setPosition({i, j});
+            cells.push_back(cell);
+        }
+    }
+}
+
+/**
+ * fill the board with valid solution
+ **/
+void SudokuBoard::fillCells() {
+    if(!doFillCells(0)) {
+        std::cout << "Unable to fill board" << '\n';
+    }
+}
+
+bool SudokuBoard::doFillCells(int index) {
+    // get first cell and tail
+    auto cell = cells.at(index);
+
+    std::set<int> neighborValues = {};
+
+    for(auto &neighbor : cell->neighbors) {
+        auto value = this->at(neighbor)->value;
+        neighborValues.insert(value);
+    }
+
+    std::vector<int> options;
+    set_difference(
+            VALID_VALUES.begin(), VALID_VALUES.end(),
+            neighborValues.begin(), neighborValues.end(),
+            std::inserter(options, options.begin())
+    );
+    shuffle(options.begin(), options.end(), randomGen);
+
+    for(auto option : options) {
+        cell->value = option;
+
+        if (index == cells.size() - 1 || doFillCells(index + 1)) {
+            return true;
         }
     }
 
-    void reset () {
-        for(auto cell : cells) {
-            cell->value = 0;
-        }
+    // out of options backtrack
+    cell->value = 0;
+    return false;
+}
+
+/**
+ * serialize a board
+ */
+std::string SudokuBoard::serialize() {
+    std::stringstream ostream;
+
+    for(auto cell: cells) {
+        ostream << cell->value << '|';
     }
 
-    /*
-     * fill the board with valid solution
-     */
-    void fillCells() {
-        if(!doFillCells(0)) {
-            std::cout << "Unable to fill board" << '\n';
-        }
-    }
+    return ostream.str();
+}
 
-    bool doFillCells(int index) {
-        // get first cell and tail
-        auto cell = cells.at(index);
+/**
+ *
+ */
+std::shared_ptr<SudokuCell> SudokuBoard::at(int index) {
+    return this->cells.at(index);
+}
 
-        std::set<int> neighborValues = {};
-
-        for(auto &neighbor : cell->neighbors) {
-            auto value = this->at(neighbor)->value;
-            neighborValues.insert(value);
-        }
-
-        std::vector<int> options;
-        set_difference(
-                VALID_VALUES.begin(), VALID_VALUES.end(),
-                neighborValues.begin(), neighborValues.end(),
-                std::inserter(options, options.begin())
-        );
-        shuffle(options.begin(), options.end(), randomGen);
-
-        for(auto option : options) {
-            cell->value = option;
-
-            if (index == cells.size() - 1 || doFillCells(index + 1)) {
-                return true;
-            }
-        }
-
-        // out of options backtrack
-        cell->value = 0;
-        return false;
-    }
-
-    /**
-     * take index and return 2d coord
-     */
-    coord resolveIndex(int index) {
-        return coord{
-                index / SIZE,
-                index % SIZE
-        };
-    }
-
-    /**
-     * Take coord and return index
-     */
-    int resolvePosition(const coord &position) {
-        return position.i * SIZE + position.j;
-    }
-
-    /**
-     *
-     */
-    std::shared_ptr<SudokuCell> at(int index) {
-        return this->cells.at(index);
-    }
-
-    /**
-     *
-     */
-    std::shared_ptr<SudokuCell> at(coord position) {
-        auto index = this->resolvePosition(position);
-        return this->at(index);
-    }
-
-    /**
-     * print
-     */
-    void printBoard() {
-        std::cout << '\n' << "----------------------------------" << '\n';
-
-        for(int i = 0; i < SIZE; i++) {
-            std::cout << "| ";
-
-            for(int j = 0; j < SIZE; j++) {
-                auto index = resolvePosition({i, j}); // YOOOO structs
-                auto cell = cells[index];
-                auto value = cell->value;
-
-                if (cell->value > 0)  {
-                    std::cout << cell->value << "  ";
-                } else {
-                    std::cout << "   ";
-                }
-
-                if (j % THIRD == THIRD - 1) {
-                    std::cout << "| ";
-                }
-            }
-            if (i % THIRD == THIRD - 1) {
-                std::cout << '\n' << "----------------------------------";
-            }
-            std::cout << '\n';
-        }
-    }
-
-    /**
-     * serialize
-     */
-    std::string serialize() {
-        std::stringstream ostream;
-
-        for(auto cell: cells) {
-            ostream << cell->value;
-        }
-
-        return ostream.str();
-    }
-};
+/**
+ * Get cell by position
+ */
+std::shared_ptr<SudokuCell> SudokuBoard::at(coord position) {
+    auto index = resolvePosition(position);
+    return this->at(index);
+}
 
 void printUsageError(char *programName) {
     std::cerr << "Usage: " << programName << " board_count [--all-neighbors]" << '\n';
 }
 
+extern "C" {
+  SudokuBoard generateAndFillBoard() {
+      SudokuBoard board{};
+      board.fillCells();
+      return board;
+  }
+}
+
+/*
 int main(int argc, char** argv) {
     /*if (argc < 2 || argc > 3) {
         printUsageError(argv[0]);
         return 1;
     }*/
+/*
 
     if (argc == 3) {
         std::cout << argv[2] << '\n';
@@ -253,18 +239,14 @@ int main(int argc, char** argv) {
     //auto iterations = atol(argv[1]);
     auto iterations = 100; //atol(argv[1]);
     auto start_time = std::chrono::system_clock::now();
+    std::stringstream output;
 
     srand(time(NULL));
 
-    SudokuBoard board{};
-    std::stringstream output;
 
     for(auto i = 0; i < iterations; ++i){
-        board.fillCells();
+        auto board = generateAndFillBoard();
         output << board.serialize() << '\n';
-        if (g_allNeighbors) {
-            board.reset();
-        }
     }
 
     auto now = std::chrono::system_clock::now();
@@ -272,8 +254,9 @@ int main(int argc, char** argv) {
     auto boards_per_s = 10e5 * ((double)iterations) / duration;
     std::cout << "time micros: "  << duration << '\n';
     std::cout << "Iterations "  << iterations << '\n';
-    std::cout << "Last board: " << board.serialize() << '\n';
     std::cout << "boards per second " <<  boards_per_s << '\n';
+    std::cout << output.str();
 
     return 0;
 }
+*/
