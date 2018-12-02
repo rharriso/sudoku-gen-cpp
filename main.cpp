@@ -9,6 +9,8 @@
 #include <random>
 #include <string.h>
 
+#include <emscripten/bind.h>
+
 constexpr int SIZE = 9;
 constexpr int THIRD = SIZE / 3;
 const std::set<int> VALID_VALUES = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -110,22 +112,19 @@ int resolvePosition(const coord &position) {
 
 using cellQueue = std::deque<std::shared_ptr<SudokuCell>>;
 
-extern "C" {
-    class SudokuBoard {
-        cellQueue cells;
+class SudokuBoard {
+    cellQueue cells;
 
-    public:
-        SudokuBoard();
-        void fillCells();
-        std::string serialize();
+public:
+    SudokuBoard();
+    void fillCells();
+    std::string serialize();
 
-    private:
-        bool doFillCells(int index);
-        std::shared_ptr<SudokuCell> at(int index);
-        std::shared_ptr<SudokuCell> at(coord position);
-    };
-}
-
+private:
+    bool doFillCells(int index);
+    std::shared_ptr<SudokuCell> at(int index);
+    std::shared_ptr<SudokuCell> at(coord position);
+};
 
 SudokuBoard::SudokuBoard() {
     for(int i = 0; i < SIZE; i++) {
@@ -210,14 +209,18 @@ void printUsageError(char *programName) {
     std::cerr << "Usage: " << programName << " board_count [--all-neighbors]" << '\n';
 }
 
-extern "C" {
-  SudokuBoard generateAndFillBoard() {
-      SudokuBoard board{};
-      board.fillCells();
-      return board;
-  }
+SudokuBoard generateAndFillBoard() {
+    SudokuBoard board{};
+    board.fillCells();
+    return board;
 }
 
+EMSCRIPTEN_BINDINGS(sudoku_gen) {
+  emscripten::function("generateAndFillBoard", &generateAndFillBoard);
+
+  emscripten::class_<SudokuBoard>("SudokuBoard")
+    .function("serialize", &SudokuBoard::serialize);
+}
 /*
 int main(int argc, char** argv) {
     /*if (argc < 2 || argc > 3) {
