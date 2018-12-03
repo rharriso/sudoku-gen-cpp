@@ -1,15 +1,13 @@
-# sudoku-gen-cpp
-sudoku gen cpp
-
 ## Building And Running
-```sh
- make && ./sudoku-gen
+
+```bash
+make run-native # build and run for current platform
+make run-wasm # build and run hello script on node
 ```
 
 ## Usage
 
 ```
-sudoku_generator_cpp board_count [--all-neighbors]
+sudoku_gen board_count
 # board_count: number of boards to generate
-# --all-neighbors: set to use all neighbors when setting values (not just optimal set)
 ```
