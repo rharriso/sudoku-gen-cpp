@@ -28,13 +28,6 @@
 *.out
 *.app
 
-build
-
-.idea
-
-a.out*
 /sudoku-gen
-/sudoku-gen.*
-/out.html
-/out.js
-/out.wasm
+pkg
+

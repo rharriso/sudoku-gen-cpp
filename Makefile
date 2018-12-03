@@ -1,13 +1,16 @@
-sudoku-gen: main.o
-	g++ -std=c++1z main.o -o sudoku-gen
+# build linux binary
+sudoku-gen: main.o sudoku-gen.o
+	clang++ -std=c++1z main.o $< $@
 
+# build all object files for linux
 %.o: %.cpp
-	g++ -std=c++1z -O3 -c $< -o $@
+	clang++ -std=c++1z -O3 -c $< -o $@
 
-run-asm:
-	emcc -std=c++1z -O3 main.cpp
-	python -m SimpleHTTPServer 8080
+run-wasm: pkg
+	node hello.js 100
+		
+# Build wasm package
+pkg:
+	mkdir -p pkg
+	emcc --bind -o pkg/sudoku-gen.js -std=c++1z main.cpp -s WASM=1 -Wall -s MODULARIZE=1
 
-run-wasm:
-	emcc -std=c++1z -O3 -s WASM=1 main.cpp
-	python -m SimpleHTTPServer 8080

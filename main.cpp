@@ -215,8 +215,16 @@ SudokuBoard generateAndFillBoard() {
     return board;
 }
 
+SudokuBoard generateAndFillBoards(int numBoards) {
+  for(int i = 0; i < numBoards; i++) {
+    SudokuBoard board{};
+    board.fillCells();
+  }
+}
+
 EMSCRIPTEN_BINDINGS(sudoku_gen) {
   emscripten::function("generateAndFillBoard", &generateAndFillBoard);
+  emscripten::function("generateAndFillBoards", &generateAndFillBoards);
 
   emscripten::class_<SudokuBoard>("SudokuBoard")
     .function("serialize", &SudokuBoard::serialize);
