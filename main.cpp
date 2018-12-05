@@ -13,8 +13,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    //auto iterations = atol(argv[1]);
-    auto iterations = 100; //atol(argv[1]);
+    auto iterations = atol(argv[1]);
     auto start_time = std::chrono::system_clock::now();
     std::stringstream output;
 
